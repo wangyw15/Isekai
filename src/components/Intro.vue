@@ -15,13 +15,3 @@
     <p>请合理分配自己剩余的点数，</p>
     <p>为自己的第二人生构筑一个理想的状态吧！</p>
 </template>
-
-<style scoped>
-.positive {
-  color: #1d9900;
-}
-
-.negative {
-  color: #d4371e;
-}
-</style>

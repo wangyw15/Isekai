@@ -15,7 +15,6 @@ declare module 'vue' {
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTag: typeof import('element-plus/es')['ElTag']
     Intro: typeof import('./src/components/Intro.vue')['default']
-    LoadingSkeleton: typeof import('./src/components/LoadingSkeleton.vue')['default']
     MultiSelectCatalogTable: typeof import('./src/components/MultiSelectCatalogTable.vue')['default']
   }
 }

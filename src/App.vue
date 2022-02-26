@@ -62,8 +62,10 @@ function switchMamonoStatus(isMamono: boolean) {
     <intro></intro>
   </div>
   <el-affix :offset="10">
-    <el-card class="box-card">
-      <h2>当前点数：{{ Point }}</h2>
+    <el-card>
+      <span v-if="Point > 0" class="positive">当前点数：{{ Point }}</span>
+      <span v-else-if="Point == 0">当前点数：{{ Point }}</span>
+      <span v-else-if="Point < 0" class="negative">当前点数：{{ Point }}</span>
     </el-card>
   </el-affix>
   <el-divider></el-divider>
@@ -78,6 +80,14 @@ function switchMamonoStatus(isMamono: boolean) {
 </template>
 
 <style>
+.positive {
+  color: #1d9900;
+}
+
+.negative {
+  color: #d4371e;
+}
+
 body {
   font-family: "LXGW WenKai Screen", sans-serif;
   /*background-color: #e6dcd2;*/
