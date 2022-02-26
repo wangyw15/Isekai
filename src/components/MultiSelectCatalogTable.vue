@@ -1,14 +1,10 @@
 <script lang="ts" setup>
 import { inject } from 'vue';
-import { Item, Catalog } from '../dto'
+import type { Item, Catalog } from '../dto'
 
 defineProps<{ catalog: Catalog }>();
 
 const setFeatures: any = inject('$SetFeatures');
-
-function onSelectioncChange(val: Item[]) {
-    setFeatures(val.map((item: Item) => item.name));
-}
 </script>
 
 <template>
@@ -16,7 +12,7 @@ function onSelectioncChange(val: Item[]) {
         :data="catalog.choices"
         style="width: 100%"
         highlight-current-row
-        @selection-change="onSelectioncChange"
+        @selection-change="(val: Item[]) => setFeatures(val.map((item: Item) => item.name))"
     >
         <el-table-column>
             <template #header>

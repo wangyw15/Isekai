@@ -1,26 +1,18 @@
 <script lang="ts" setup>
-import { ElTable, selectGroupKey } from 'element-plus';
-import { inject, watch, ref, defineComponent, onMounted } from 'vue'
+import { ElTable } from 'element-plus';
+import { inject, ref } from 'vue'
 import { Item, Catalog } from '../dto'
 
 const props = defineProps<{ catalog: Catalog, selectName: String | undefined }>();
-
 const setChoice: any = inject('$SetChoice');
+const switchMamonoStatus: any = inject('$SwitchMamonoStatus');
 const tableRef = ref<InstanceType<typeof ElTable>>();
-var onInitial = true;
-
-onMounted(() => {
-    if (props.selectName) {
-        var currentChoice = props.catalog.choices.filter((value, index, array) => value.name == props.selectName)[0];
-        tableRef.value!.setCurrentRow(currentChoice);
-    }
-    onInitial = false;
-});
 
 function onChanged(newVal: Item, oldVal: Item) {
-    if (!onInitial) {
-        setChoice(props.catalog.title, newVal.name);
+    if (props.catalog.title == '你的种族') {
+        switchMamonoStatus(newVal.name == '魔物');
     }
+    setChoice(props.catalog.title, newVal.name);
 }
 
 </script>

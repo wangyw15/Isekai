@@ -1,6 +1,5 @@
 <script setup lang="ts">
-//import ElementPlus from 'element-plus'
-import { createApp, computed, ref, App, reactive } from 'vue'
+import { createApp, computed, ref, App, reactive, Ref, provide, watchEffect } from 'vue'
 import { Item, Catalog } from './dto'
 import CalalogTable from './components/CalalogTable.vue'
 import MultiSelectCatalogTable from './components/MultiSelectCatalogTable.vue'
@@ -8,96 +7,54 @@ import Intro from './components/Intro.vue'
 import CharacterCard from './components/CharacterCard.vue'
 
 const InitialPoint = 30;
-const Point = ref(30);
-const selectedItems = new Map<string, string>();
-var selectedFeatures = new Array<string>();
-//var selectedFeatures = ref(new Array<string>());
+const Point = ref(InitialPoint);
+const selectedItems = ref(new Map<string, string>());
+const selectedFeatures: Ref<string[]> = ref([])
+const catalogs: Ref<Catalog[]> = ref([]);
+const features: Ref<Catalog | undefined> = ref();
+var initialWorldPoints: number[] = [];
+var worldIndex = 0;
 
-var dataPromise: Promise<Catalog[]> = fetch('./isekai-data/data.json').then(response => response.json());
-dataPromise.then(json => {
-  var worldIndex = 0;
-  json.forEach((catalog, index, array) => {
-    if (catalog.title == '世界局势') {
-      worldIndex = index;
-    }
-  });
-  var initialWorldPoints = json[worldIndex].choices.map(item => item.point);
+provide('$SetChoice', (title: string, item: string) => { selectedItems.value.set(title, item); calculatePoint(); });
+provide('$SetFeatures', (newFeatures: string[]) => { selectedFeatures.value = newFeatures; calculatePoint(); });
+provide('$SwitchMamonoStatus', switchMamonoStatus);
 
-  var worldTable: App<Element>;
-  var worldDiv: HTMLDivElement;
-
-  json.forEach((val) => {
-    var table = null;
-    if (val.title == '特质') {
-      table = createApp(MultiSelectCatalogTable, { catalog: val });
-      table.provide('$SetFeatures', (features: string[]) => { selectedFeatures = features; calculatePoint(); });
-      /*table.provide('$AddFeature', (featureName: string) => selectedFeatures.push(featureName));
-      table.provide('$RemoveFeature', (featureName: string) => {
-        selectedFeatures.splice(selectedFeatures.indexOf(featureName, 0), 1);
-      });*/
+fetch('./isekai-data/data.json').then(response => response.json()).then((json: Catalog[]) => {
+  json.forEach((item: Catalog, index, array) => {
+    if (item.title == '特质') {
+      features.value = item;
     }
     else {
-      table = createApp(CalalogTable, { catalog: val, selectName: undefined });
-      table.provide('$SetChoice', (key: string, value: string) => { selectedItems.set(key, value); calculatePoint(); });
+      catalogs.value.push(item);
+      if (item.title == '世界局势') {
+        initialWorldPoints = item.choices.map((value, index, array) => value.point);
+        worldIndex = index;
+      }
     }
-    //table.use(ElementPlus);
-    var newDiv = document.createElement('div');
-    if (val.title == '世界局势') {
-      worldTable = table;
-      worldDiv = newDiv;
-    }
-    document.getElementById('tableContainer')?.appendChild(newDiv);
-    //document.body.appendChild(newDiv);
-    table.mount(newDiv);
   });
-
-  /*var characterCard = createApp(CharacterCard);
-  characterCard.mount('#charCardContainer');*/
-
-  function calculatePoint() {
-    var isMamono = false;
-
-    for (let item of selectedItems.values()) {
-      if (item == '魔物') {
-        isMamono = true;
-        break;
-      }
-    }
-
-    if (isMamono) {
-      for (let i = 0; i < initialWorldPoints.length; i++) {
-        json[worldIndex].choices[i].point = initialWorldPoints[initialWorldPoints.length - 1 - i];
-      }
-    }
-    else {
-      for (let i = 0; i < initialWorldPoints.length; i++) {
-        json[worldIndex].choices[i].point = initialWorldPoints[i];
-      }
-    }
-
-    var worldSelected: string = '';
-    if (selectedItems.has('世界局势')) {
-      worldSelected = selectedItems.get('世界局势')!;
-    }
-
-    worldTable.unmount();
-    worldTable = createApp(CalalogTable, { catalog: json[worldIndex], selectName: worldSelected });
-    worldTable.provide('$SetChoice', (key: string, value: string) => { selectedItems.set(key, value); calculatePoint(); });
-    worldTable.mount(worldDiv);
-
-    var newPoint = InitialPoint;
-    selectedItems.forEach((value, key) => {
-      var currentItem = json.filter((catalog, index, array) => catalog.title == key)[0].choices.filter((item, index, array) => item.name == value)[0];
-      newPoint += currentItem.point;
-    });
-    selectedFeatures.forEach((feature, index, array) => {
-      var featuresList = json.filter((catalog, index, array) => catalog.title == '特质')[0];
-      var currentFeature = featuresList.choices.filter((item, index, array) => item.name == feature)[0];
-      newPoint += currentFeature.point;
-    });
-    Point.value = newPoint;
-  }
 });
+
+function calculatePoint() {
+  var newPoint = InitialPoint;
+  selectedItems.value.forEach((value, key) => {
+    var currentCatalog = catalogs.value.filter((item, index, array) => item.title == key)[0];
+    var currentItem = currentCatalog.choices.filter((item, index, array) => item.name == value)[0];
+    newPoint += currentItem.point;
+  });
+  selectedFeatures.value.forEach((feature, index, array) => {
+    var currentFeature = features.value?.choices.filter((item, index, array) => item.name == feature)[0];
+    if (currentFeature) {
+      newPoint += currentFeature.point;
+    }
+  });
+  Point.value = newPoint;
+}
+
+function switchMamonoStatus(isMamono: boolean) {
+  initialWorldPoints.forEach((value, index, array) => {
+    catalogs.value[worldIndex].choices[isMamono ? array.length - 1 - index : index].point = value;
+  });
+}
 </script>
 
 <template>
@@ -110,19 +67,24 @@ dataPromise.then(json => {
     </el-card>
   </el-affix>
   <el-divider></el-divider>
-  <div id="tableContainer"></div>
+  <div id="tableContainer">
+    <calalog-table v-for="item in catalogs" :catalog="item" :select-name="undefined"></calalog-table>
+    <multi-select-catalog-table v-if="features != undefined" :catalog="features"></multi-select-catalog-table>
+  </div>
   <div id="charCardContainer">
-    <character-card :selected-items="reactive(selectedItems)" :selected-features="reactive(selectedFeatures)"></character-card>
+    <!--<character-card :selected-items="reactive(selectedItems)" :selected-features="reactive(selectedFeatures)"></character-card>-->
   </div>
 </template>
 
 <style>
+body {
+  font-family: "LXGW WenKai Screen", sans-serif;
+}
+
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
   margin-top: 60px;
 }
 </style>

@@ -5,13 +5,10 @@ import { Item, Catalog } from '../dto';
 const props = defineProps<{ selectedItems: Map<string, string>, selectedFeatures: string[] }>();
 const refProps = ref(props);
 const reaProps = reactive(props);
-watchEffect(() => {
-    console.log(props.selectedFeatures);
-});
 </script>
 
 <template>
-<el-tag v-for="feature in selectedFeatures">{{ feature }}</el-tag>
+    <el-tag v-for="feature in selectedFeatures">{{ feature }}</el-tag>
     <!--<el-descriptions title="角色卡！" direction="vertical" border>
         <el-descriptions-item label="尊姓大名"><el-input placeholder="名字" clearable/></el-descriptions-item>
         <el-descriptions-item label="性别"><el-input placeholder="名字" clearable/></el-descriptions-item>
