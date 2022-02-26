@@ -63,9 +63,12 @@ function switchMamonoStatus(isMamono: boolean) {
   </div>
   <el-affix :offset="10">
     <el-card>
-      <span v-if="Point > 0" class="positive">当前点数：{{ Point }}</span>
-      <span v-else-if="Point == 0">当前点数：{{ Point }}</span>
-      <span v-else-if="Point < 0" class="negative">当前点数：{{ Point }}</span>
+      <span v-if="Point > 0" class="positive">当前点数：{{ Point }}<br/>
+        <span v-if="Point >= 25">绰绰有余</span>
+        <span v-else-if="Point > 0">马马虎虎</span>
+      </span>
+      <span v-else-if="Point == 0">当前点数：{{ Point }}<br/>刚刚好</span>
+      <span v-else-if="Point < 0" class="negative">当前点数：{{ Point }}<br/>(╯▔皿▔)╯</span>
     </el-card>
   </el-affix>
   <el-divider></el-divider>
