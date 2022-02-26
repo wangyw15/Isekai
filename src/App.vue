@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { createApp, computed, ref, App, reactive, Ref, provide, watchEffect } from 'vue'
+import { ref, Ref, provide } from 'vue'
 import { Item, Catalog } from './dto'
 import CalalogTable from './components/CalalogTable.vue'
 import MultiSelectCatalogTable from './components/MultiSelectCatalogTable.vue'
@@ -67,6 +67,7 @@ function switchMamonoStatus(isMamono: boolean) {
     </el-card>
   </el-affix>
   <el-divider></el-divider>
+  <el-skeleton :loading="features == undefined" :rows="5" animated style="text-align: left;"></el-skeleton>
   <div id="tableContainer">
     <calalog-table v-for="item in catalogs" :catalog="item" :select-name="undefined"></calalog-table>
     <multi-select-catalog-table v-if="features != undefined" :catalog="features"></multi-select-catalog-table>
@@ -79,6 +80,7 @@ function switchMamonoStatus(isMamono: boolean) {
 <style>
 body {
   font-family: "LXGW WenKai Screen", sans-serif;
+  /*background-color: #e6dcd2;*/
 }
 
 #app {
