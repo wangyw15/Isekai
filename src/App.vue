@@ -74,7 +74,7 @@ function switchMamonoStatus(isMamono: boolean) {
   <el-divider></el-divider>
   <el-skeleton :loading="features == undefined" :rows="5" animated style="text-align: left;"></el-skeleton>
   <div id="tableContainer">
-    <calalog-table v-for="item in catalogs" :catalog="item" :select-name="undefined"></calalog-table>
+    <calalog-table v-for="item in catalogs" :catalog="item"></calalog-table>
     <multi-select-catalog-table v-if="features != undefined" :catalog="features"></multi-select-catalog-table>
   </div>
   <div id="charCardContainer">

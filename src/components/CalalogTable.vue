@@ -3,7 +3,7 @@ import { ElTable } from 'element-plus';
 import { inject, ref } from 'vue'
 import { Item, Catalog } from '../dto'
 
-const props = defineProps<{ catalog: Catalog, selectName: String | undefined }>();
+const props = defineProps<{ catalog: Catalog }>();
 const setChoice: any = inject('$SetChoice');
 const switchMamonoStatus: any = inject('$SwitchMamonoStatus');
 const tableRef = ref<InstanceType<typeof ElTable>>();
